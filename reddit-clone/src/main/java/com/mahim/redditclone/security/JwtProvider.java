@@ -43,4 +43,9 @@ public class JwtProvider {
             throw new SpringRedditException("Exception occurred while retrieving public key from keystore");
         }
     }
+
+    public void validateToken(String token) {
+        Jwts.parser()
+                .setsig
+    }
 }
