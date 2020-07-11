@@ -1,6 +1,7 @@
 package com.mahim.redditclone.security;
 
 import com.mahim.redditclone.exception.SpringRedditException;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
@@ -44,8 +45,27 @@ public class JwtProvider {
         }
     }
 
-    public void validateToken(String token) {
+    public boolean validateToken(String token) {
         Jwts.parser()
-                .setsig
+                .setSigningKey(getPublickey())
+                .parseClaimsJws(token);
+
+        return true;
+    }
+
+    private PublicKey getPublickey() {
+        try {
+            return keyStore.getCertificate("springblog").getPublicKey();
+        } catch (KeyStoreException e) {
+            throw new SpringRedditException("Exception occured while retrieving pubic key");
+        }
+    }
+
+    public String getUsernameFromJwt(String token) {
+        Claims claims = Jwts.parser()
+                .setSigningKey(getPublickey())
+                .parseClaimsJws(token)
+                .getBody();
+        return claims.getSubject();
     }
 }
